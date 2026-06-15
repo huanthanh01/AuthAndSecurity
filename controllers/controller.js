@@ -34,7 +34,8 @@ exports.addBooking = async (req, res) => {
 };
 exports.showUpdateForm = async (req, res) => {
   const booking = await Booking.findById(req.params.id);
-  res.render("updateRoom", { booking });
+  const rooms = await Room.find();
+  res.render("updateRoom", { booking, rooms });
 };
 exports.deleteBooking = async (req, res) => {
   await Booking.findByIdAndDelete(req.params.id);

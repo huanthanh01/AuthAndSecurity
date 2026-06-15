@@ -32,11 +32,12 @@
         font-weight: bold;
       }
 
-      input {
+      input, select {
         width: 100%;
         padding: 12px;
         border: 1px solid #ddd;
         border-radius: 5px;
+        box-sizing: border-box;
       }
 
       button {
@@ -76,12 +77,13 @@
 
         <label>Room Number</label>
 
-        <input
-          type="text"
-          name="roomNumber"
-          value="<%= booking.roomNumber %>"
-          required
-        />
+        <select name="roomNumber" required>
+          <% rooms.forEach(room => { %>
+            <option value="<%= room.roomNumber %>" <%= booking.roomNumber === room.roomNumber ? 'selected' : '' %>>
+              Phòng <%= room.roomNumber %> (<%= room.capacity %> người - <%= room.pricePerHour.toLocaleString('vi-VN') %>đ/h)
+            </option>
+          <% }) %>
+        </select>
 
         <label>Start Time</label>
 
