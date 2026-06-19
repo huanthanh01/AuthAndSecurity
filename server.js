@@ -1,17 +1,21 @@
 require("dotenv").config();
 const express = require("express");
-const path = require("path");
 const database = require("./config/database");
-const bookingRoutes = require("./routes/bookingRoutes");
+
+const authRoutes = require("./routes/authRoutes");
+const registrationRoutes = require("./routes/registrationRoutes");
+
 const app = express();
 
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
 database();
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/bookings", bookingRoutes);
+
+app.use("/auth", authRoutes);
+app.use("/", registrationRoutes);
+
 app.get("/", (req, res) => {
-  res.redirect("/bookings");
+  res.json({ message: "Welcome to Event Management System API" });
 });
 
 if (process.env.NODE_ENV !== "production") {

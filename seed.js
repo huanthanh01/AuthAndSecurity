@@ -1,49 +1,38 @@
-const mongoose = require("mongoose");
-const Room = require("./models/roomModel");
-require("dotenv").config();
+require('dotenv').config();
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const User = require('./models/userModel');
+const Event = require('./models/eventModel');
+const Registration = require('./models/registrationModel');
+const database = require('./config/database');
 
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(async () => {
-    console.log("Connected to MongoDB");
+const seedDB = async () => {
+  await database();
 
-    // Check if rooms already exist
-    const count = await Room.countDocuments();
-    if (count === 0) {
-      console.log("No rooms found. Seeding initial data...");
-      
-      const sampleRooms = [
-        {
-          roomNumber: "R01",
-          capacity: 5,
-          status: "available",
-          pricePerHour: 100000,
-          features: ["TV", "Microphone", "AC"],
-        },
-        {
-          roomNumber: "R02",
-          capacity: 10,
-          status: "available",
-          pricePerHour: 150000,
-          features: ["TV", "Microphone", "AC", "VIP Sofa"],
-        },
-        {
-          roomNumber: "R03",
-          capacity: 15,
-          status: "maintenance",
-          pricePerHour: 200000,
-          features: ["TV", "Microphone", "AC", "Stage"],
-        },
-      ];
+  await User.deleteMany({});
+  await Event.deleteMany({});
+  await Registration.deleteMany({});
 
-      await Room.insertMany(sampleRooms);
-      console.log("Successfully seeded sample rooms.");
-    } else {
-      console.log(`Database already has ${count} rooms.`);
-    }
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  const studentPassword = await bcrypt.hash('student123', 10);
 
-    mongoose.connection.close();
-  })
-  .catch((err) => {
-    console.error("Error connecting to database:", err);
-  });
+  await User.create([
+    { username: 'admin', password: adminPassword, role: 'admin' },
+    { username: 'student1', password: studentPassword, role: 'student' },
+    { username: 'student2', password: studentPassword, role: 'student' }
+  ]);
+
+  await Event.create([
+    { name: 'FPT Code War 2026', capacity: 2 },
+    { name: 'Tech Talk: AI in Future', capacity: 50 },
+    { name: 'F-Camp 2026', capacity: 100 }
+  ]);
+
+  console.log('Database seeded successfully!');
+  mongoose.connection.close();
+};
+
+seedDB().catch(err => {
+  console.error(err);
+  mongoose.connection.close();
+});
